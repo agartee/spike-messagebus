@@ -6,7 +6,7 @@ namespace Spike.WebApp.Endpoints
     {
         public static IEndpointRouteBuilder MapCreatePerson(this IEndpointRouteBuilder routeBuilder)
         {
-            routeBuilder.MapGet("/person", (
+            routeBuilder.MapPost("/person", (
                 CreatePerson command,
                 CreatePersonHandler handler,
                 CancellationToken cancellationToken) =>
