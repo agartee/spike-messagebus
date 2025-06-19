@@ -1,0 +1,19 @@
+{
+  "solutionFile": "Spike.sln",
+  "userSecretsId": "spike-azureservicebus",
+  "webApp": {
+    "name": "Spike.WebApp",
+    "projectFile": "src/Spike.WebApp/Spike.WebApp.csproj"
+  },
+  "dbMigrations": {
+    "projectFile": "src/Spike.SqlServer/Spike.SqlServer.csproj",
+    "dbContextName": "SpikeDbContext"
+  },
+  "docker": {
+    "imageName": "spike",
+    "containerName": "spike",
+    "tagName": "dev",
+    "pfxFile": "Spike.WebApp.pfx",
+    "pfxPassword": "password"
+  }
+}
