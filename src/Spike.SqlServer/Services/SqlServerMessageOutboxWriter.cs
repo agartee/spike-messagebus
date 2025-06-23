@@ -28,7 +28,7 @@ namespace Spike.SqlServer.Services
                 Created = DateTime.UtcNow,
                 CommitSequence = 0,
                 Body = json,
-                TypeName = domainEvent.GetType().AssemblyQualifiedName
+                TypeName = domainEvent.GetType().FullName
             });
         }
     }
