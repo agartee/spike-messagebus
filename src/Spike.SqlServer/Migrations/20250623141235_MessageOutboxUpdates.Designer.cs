@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Spike.SqlServer;
 
@@ -11,9 +12,11 @@ using Spike.SqlServer;
 namespace Spike.SqlServer.Migrations
 {
     [DbContext(typeof(SpikeDbContext))]
-    partial class SpikeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250623141235_MessageOutboxUpdates")]
+    partial class MessageOutboxUpdates
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

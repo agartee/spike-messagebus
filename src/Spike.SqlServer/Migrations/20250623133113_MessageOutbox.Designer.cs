@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Spike.SqlServer;
 
@@ -11,9 +12,11 @@ using Spike.SqlServer;
 namespace Spike.SqlServer.Migrations
 {
     [DbContext(typeof(SpikeDbContext))]
-    partial class SpikeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250623133113_MessageOutbox")]
+    partial class MessageOutbox
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -29,10 +32,6 @@ namespace Spike.SqlServer.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Body")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("CommitSequence")
                         .HasColumnType("int");
 
@@ -42,6 +41,10 @@ namespace Spike.SqlServer.Migrations
                     b.Property<bool>("IsSending")
                         .HasColumnType("bit");
 
+                    b.Property<string>("Json")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime?>("LastSendAttempt")
                         .HasColumnType("datetime2");
 
@@ -49,6 +52,7 @@ namespace Spike.SqlServer.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("TypeName")
+                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 

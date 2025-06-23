@@ -27,8 +27,8 @@ namespace Spike.SqlServer.Services
                 Id = Guid.NewGuid(),
                 Created = DateTime.UtcNow,
                 CommitSequence = 0,
-                Json = json,
-                TypeName = domainEvent.GetType().Name
+                Body = json,
+                TypeName = domainEvent.GetType().AssemblyQualifiedName
             });
         }
     }

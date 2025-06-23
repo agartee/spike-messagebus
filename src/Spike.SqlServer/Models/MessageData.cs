@@ -10,8 +10,8 @@ namespace Spike.SqlServer.Models
 
         public required Guid Id { get; set; }
         [MaxLength(200)]
-        public required string TypeName { get; set; }
-        public required string Json { get; set; }
+        public string? TypeName { get; set; }
+        public required string Body { get; set; }
         public required DateTime Created { get; set; }
         public required int CommitSequence { get; set; }
         public bool IsSending { get; set; } = false;
