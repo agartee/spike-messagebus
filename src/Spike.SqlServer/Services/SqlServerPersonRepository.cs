@@ -13,7 +13,7 @@ namespace Spike.SqlServer.Services
             this.dbContext = dbContext;
         }
 
-        public async Task CreatePerson(Person person, CancellationToken cancellationToken)
+        public void AddPerson(Person person)
         {
             var data = new PersonData
             {
@@ -22,8 +22,6 @@ namespace Spike.SqlServer.Services
             };
 
             dbContext.People.Add(data);
-
-            await dbContext.SaveChangesAsync(cancellationToken);
         }
     }
 }

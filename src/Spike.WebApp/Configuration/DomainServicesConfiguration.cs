@@ -13,9 +13,12 @@ namespace Spike.WebApp.Configuration
             services.AddDbContext<SpikeDbContext>(options =>
                 options.UseSqlServer(configuration.GetConnectionString("database")));
 
+            services.AddScoped<IUnitOfWork>(s => s.GetRequiredService<SpikeDbContext>());
+
             services.AddTransient<CreatePersonHandler>();
 
             services.AddTransient<IPersonRepository, SqlServerPersonRepository>();
+            services.AddTransient<IMessageOutboxWriter, SqlServerMessageOutboxWriter>();
 
             return services;
         }
