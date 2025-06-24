@@ -15,7 +15,7 @@ namespace Spike.SqlServer.Models
         public required DateTime Created { get; set; }
         public required int CommitSequence { get; set; }
         public bool IsSending { get; set; } = false;
-        public int? SendAttemptCount { get; set; } = 0;
+        public int SendAttemptCount { get; set; } = 0;
         public DateTime? LastSendAttempt { get; set; }
     }
 }
