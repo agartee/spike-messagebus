@@ -3,10 +3,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Spike.SqlServer.Models
 {
-    [Table(TABLE_NAME)]
+    [Table(TableName)]
     public class MessageData
     {
-        public const string TABLE_NAME = "MessageOutbox";
+        public const string TableName = "MessageOutbox";
 
         public required Guid Id { get; set; }
         [MaxLength(200)]

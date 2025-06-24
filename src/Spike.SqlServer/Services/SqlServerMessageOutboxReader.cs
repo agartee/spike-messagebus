@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Spike.Domain.Services;
 using Spike.Messaging.Models;
 using Spike.SqlServer;
-using Spike.SqlServer.Extensions;
+using Spike.SqlServer.Models;
 
 namespace Spike.WebApp.Services
 {
@@ -76,62 +76,64 @@ namespace Spike.WebApp.Services
 
         private static string CreateDequeueQuery(SqlParameter maxCountParam)
         {
+            const string tableName = $"[{SpikeDbContext.SchemaName}].[{MessageData.TableName}]";
+
             return string.Format(
-                @"SET NOCOUNT ON;
+                @$"SET NOCOUNT ON;
 	            
                 DECLARE @results TABLE 
 	            (
-		            [Id] UNIQUEIDENTIFIER
-                    , [TypeName] VARCHAR(200)
-		            , [Json] VARCHAR(MAX)
-		            , [Created] DATETIME
-		            , [CommitSequence] INT
-                    , [IsSending] BIT
-                    , [SendAttemptCount] INT
-                    , [LastSendAttempt] DATETIME
+		            [{nameof(MessageData.Id)}] UNIQUEIDENTIFIER
+                    , [{nameof(MessageData.TypeName)}] VARCHAR(200)
+		            , [{nameof(MessageData.Body)}] VARCHAR(MAX)
+		            , [{nameof(MessageData.Created)}] DATETIME
+		            , [{nameof(MessageData.CommitSequence)}] INT
+                    , [{nameof(MessageData.IsSending)}] BIT
+                    , [{nameof(MessageData.SendAttemptCount)}] INT
+                    , [{nameof(MessageData.LastSendAttempt)}] DATETIME
 	            )
 
 	            INSERT INTO @results (
-                      [Id]
-                    , [TypeName]
-                    , [Json]
-                    , [Created]
-                    , [CommitSequence]
-                    , [IsSending]
-                    , [SendAttemptCount]
-                    , [LastSendAttempt]
+                      [{nameof(MessageData.Id)}]
+                    , [{nameof(MessageData.TypeName)}]
+                    , [{nameof(MessageData.Body)}]
+                    , [{nameof(MessageData.Created)}]
+                    , [{nameof(MessageData.CommitSequence)}]
+                    , [{nameof(MessageData.IsSending)}]
+                    , [{nameof(MessageData.SendAttemptCount)}]
+                    , [{nameof(MessageData.LastSendAttempt)}]
                 )
-	            SELECT TOP ({0}) 
-                      [Id]
-                    , [TypeName]
-                    , [Json]
-                    , [Created]
-                    , [CommitSequence]
-                    , [IsSending]
-                    , [SendAttemptCount]
-                    , [LastSendAttempt]
+	            SELECT TOP (@maxCount) 
+                      [{nameof(MessageData.Id)}]
+                    , [{nameof(MessageData.TypeName)}] 
+                    , [{nameof(MessageData.Body)}]
+                    , [{nameof(MessageData.Created)}]
+                    , [{nameof(MessageData.CommitSequence)}]
+                    , [{nameof(MessageData.IsSending)}]
+                    , [{nameof(MessageData.SendAttemptCount)}]
+                    , [{nameof(MessageData.LastSendAttempt)}]
 	            FROM 
-                    [MessageOutbox] WITH (ROWLOCK, UPDLOCK, READPAST)
+                    {tableName} WITH (ROWLOCK, UPDLOCK, READPAST)
 	            WHERE 
-                    [isSending] = 0
+                    [{nameof(MessageData.IsSending)}] = 0
                     AND (
-                        [LastSendAttempt] IS NULL 
-                        OR GETUTCDATE() >= DATEADD(second, @retryAfterSeconds, [LastSendAttempt])
+                        [{nameof(MessageData.LastSendAttempt)}] IS NULL 
+                        OR GETUTCDATE() >= DATEADD(second, @retryAfterSeconds, [{nameof(MessageData.LastSendAttempt)}])
                     )
-                    AND [SendAttemptCount] < @maxRetries
+                    AND [{nameof(MessageData.SendAttemptCount)}] < @maxRetries
                 ORDER BY 
-                      [Created]
-                    , [CommitSequence]
+                      [{nameof(MessageData.Created)}]
+                    , [{nameof(MessageData.CommitSequence)}]
 
 	            UPDATE 
-                    [MessageOutbox]
+                    {tableName}
 	            SET 
-                    [IsSending] = 1
+                    [{nameof(MessageData.IsSending)}] = 1
 	            WHERE 
-                    [Id] IN (SELECT [Id] FROM @results)
+                    [{nameof(MessageData.Id)}] IN (SELECT [{nameof(MessageData.Id)}] FROM @results)
 	
 	            SELECT * from @results",
-                maxCountParam.Value).TrimExtraWhitespace();
+                maxCountParam.Value);
         }
     }
 }

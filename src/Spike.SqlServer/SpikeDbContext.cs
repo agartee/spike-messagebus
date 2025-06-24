@@ -6,7 +6,7 @@ namespace Spike.SqlServer
 {
     public class SpikeDbContext : DbContext, IUnitOfWork
     {
-        public const string SCHEMA_NAME = "Spike";
+        public const string SchemaName = "Spike";
 
         public SpikeDbContext(DbContextOptions<SpikeDbContext> options) : base(options) { }
 
@@ -15,7 +15,7 @@ namespace Spike.SqlServer
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.HasDefaultSchema(SCHEMA_NAME);
+            modelBuilder.HasDefaultSchema(SchemaName);
         }
     }
 }

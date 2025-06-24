@@ -10,6 +10,11 @@ namespace Spike.WebApp.Services
         private readonly ServiceBusSender serviceBusSender;
         private readonly ILogger<OutboxDispatchWorker> logger;
 
+        private readonly JsonSerializerOptions serializerOptions = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        };
+
         public OutboxDispatchWorker(
             IMessageOutboxReader messageOutboxReader,
             ServiceBusSender serviceBusSender,
@@ -36,9 +41,8 @@ namespace Spike.WebApp.Services
                         continue;
                     }
 
-                    var serviceBusMessage = BuildServiceBusMessage(
-                        JsonSerializer.Deserialize(msgInfo.Body, messageType)!,
-                        messageType);
+                    var message = JsonSerializer.Deserialize(msgInfo.Body, messageType, serializerOptions);
+                    var serviceBusMessage = BuildServiceBusMessage(message!, messageType);
 
                     await serviceBusSender.SendMessageAsync(serviceBusMessage, cancellationToken);
                     await messageOutboxReader.ReportSuccess(msgInfo.Id);
