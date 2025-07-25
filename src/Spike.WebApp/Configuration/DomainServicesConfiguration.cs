@@ -15,6 +15,8 @@ namespace Spike.WebApp.Configuration
             services.AddDbContext<SpikeDbContext>(options =>
                 options.UseSqlServer(configuration.GetConnectionString("database")));
 
+            services.AddSingleton(new SqlServerMessageOutboxOptions()); // take defaults
+
             services.AddScoped<IUnitOfWork>(s => s.GetRequiredService<SpikeDbContext>());
 
             services.AddTransient<CreatePersonHandler>();
