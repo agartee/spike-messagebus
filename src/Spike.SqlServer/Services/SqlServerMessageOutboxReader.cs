@@ -5,6 +5,7 @@ using Spike.Common.Services;
 using Spike.SqlServer;
 using Spike.SqlServer.Extensions;
 using Spike.SqlServer.Models;
+using System.Collections.Immutable;
 
 namespace Spike.WebApp.Services
 {
@@ -24,13 +25,13 @@ namespace Spike.WebApp.Services
         {
             var maxCountParam = new SqlParameter(
                 "@maxCount", options.BatchSize);
-            var minRetryDateTimeParam = new SqlParameter(
+            var retryAfterSecondsParam = new SqlParameter(
                 "@retryAfterSeconds", options.RetryAfterSeconds);
             
             var sql = CreateDequeueQuery().ToCompactSql();
 
             var data = await dbContext.MessageOutbox
-                .FromSqlRaw(sql, maxCountParam, minRetryDateTimeParam)
+                .FromSqlRaw(sql, maxCountParam, retryAfterSecondsParam)
                 .AsNoTracking()
                 .ToListAsync();
 
@@ -47,7 +48,7 @@ namespace Spike.WebApp.Services
                     SendAttemptCount = m.SendAttemptCount,
                     LastDequeuedAt = m.LastDequeuedAt
                 })
-                .ToList();
+                .ToImmutableList();
         }
 
         public async Task ReportFailure(Guid domainMessageId)
@@ -73,7 +74,7 @@ namespace Spike.WebApp.Services
                 .SingleOrDefaultAsync();
 
             if (data != null)
-                dbContext.MessageOutbox.Remove(data);
+                data.Status = MessageStatus.Sent;
 
             await dbContext.SaveChangesAsync();
         }
@@ -87,7 +88,8 @@ namespace Spike.WebApp.Services
 	            
                 DECLARE @results TABLE 
 	            (
-		            [{nameof(MessageData.Id)}] UNIQUEIDENTIFIER
+		            [{nameof(MessageData.Id)}] UNIQUEIDENTIFIER		            
+                    , [{nameof(MessageData.CorrelationId)}] UNIQUEIDENTIFIER
                     , [{nameof(MessageData.TypeName)}] VARCHAR(200)
 		            , [{nameof(MessageData.Body)}] VARCHAR(MAX)
 		            , [{nameof(MessageData.Created)}] DATETIME
@@ -99,6 +101,7 @@ namespace Spike.WebApp.Services
 
 	            INSERT INTO @results (
                       [{nameof(MessageData.Id)}]
+                    , [{nameof(MessageData.CorrelationId)}]                    
                     , [{nameof(MessageData.TypeName)}]
                     , [{nameof(MessageData.Body)}]
                     , [{nameof(MessageData.Created)}]
@@ -109,6 +112,7 @@ namespace Spike.WebApp.Services
                 )
 	            SELECT TOP (@maxCount) 
                       [{nameof(MessageData.Id)}]
+                    , [{nameof(MessageData.CorrelationId)}] 
                     , [{nameof(MessageData.TypeName)}] 
                     , [{nameof(MessageData.Body)}]
                     , [{nameof(MessageData.Created)}]

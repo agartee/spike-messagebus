@@ -1,27 +1,28 @@
 ﻿using Spike.Common.Models;
 using Spike.Common.Services;
 using Spike.SqlServer.Models;
+using Spike.WebApp.Services;
 using System.Text.Json;
 
 namespace Spike.SqlServer.Services
 {
     public class SqlServerMessageOutboxWriter : IMessageOutboxWriter
     {
-        private readonly JsonSerializerOptions serializerOptions = new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        };
-
         private readonly SpikeDbContext dbContext;
+        private readonly SqlServerMessageOutboxOptions options;
 
-        public SqlServerMessageOutboxWriter(SpikeDbContext dbContext)
+        public SqlServerMessageOutboxWriter(SpikeDbContext dbContext, SqlServerMessageOutboxOptions options)
         {
             this.dbContext = dbContext;
+            this.options = options;
         }
 
         public void AddMessage(object domainEvent, IStronglyTypedId aggretateRootId)
         {
-            var json = JsonSerializer.Serialize(domainEvent, serializerOptions);
+            if(domainEvent == null)
+                throw new ArgumentNullException(nameof(domainEvent));
+
+            var json = JsonSerializer.Serialize(domainEvent, options.JsonSerializerOptions);
 
             dbContext.MessageOutbox.Add(new MessageData
             {
@@ -30,8 +31,7 @@ namespace Spike.SqlServer.Services
                 Created = DateTime.UtcNow,
                 CommitSequence = 0,
                 Body = json,
-                TypeName = domainEvent.GetType().FullName 
-                    ?? throw new ArgumentException("Domain event type name cannot be null.", nameof(domainEvent)),
+                TypeName = domainEvent.GetType().AssemblyQualifiedName!
             });
         }
     }

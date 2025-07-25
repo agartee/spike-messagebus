@@ -1,6 +1,8 @@
 ﻿using Azure.Messaging.ServiceBus;
+using Spike.Common;
+using Spike.Common.Models;
 using Spike.Common.Services;
-using System.Text.Json;
+using System.Text;
 
 namespace Spike.WebApp.Services
 {
@@ -9,11 +11,6 @@ namespace Spike.WebApp.Services
         private readonly IMessageOutboxReader messageOutboxReader;
         private readonly ServiceBusSender serviceBusSender;
         private readonly ILogger<OutboxDispatchWorker> logger;
-
-        private readonly JsonSerializerOptions serializerOptions = new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        };
 
         public OutboxDispatchWorker(
             IMessageOutboxReader messageOutboxReader,
@@ -33,18 +30,9 @@ namespace Spike.WebApp.Services
             {
                 try
                 {
-                    var messageType = ResolveMessageType(msgInfo.TypeName);
-                    if (messageType == null)
-                    {
-                        logger.LogWarning("Unknown message type: {TypeName}", msgInfo.TypeName);
-                        await messageOutboxReader.ReportFailure(msgInfo.Id);
-                        continue;
-                    }
+                    var serviceBusMessage = BuildServiceBusMessage(msgInfo);
 
-                    var message = JsonSerializer.Deserialize(msgInfo.Body, messageType, serializerOptions);
-                    var serviceBusMessage = BuildServiceBusMessage(message!, messageType);
-
-                    await serviceBusSender.SendMessageAsync(serviceBusMessage, cancellationToken);
+                    await serviceBusSender.SendMessageAsync(serviceBusMessage.Value, cancellationToken);
                     await messageOutboxReader.ReportSuccess(msgInfo.Id);
                 }
                 catch (Exception ex)
@@ -55,24 +43,20 @@ namespace Spike.WebApp.Services
             }
         }
 
-        private static Type? ResolveMessageType(string? typeName)
+        private static Result<ServiceBusMessage> BuildServiceBusMessage(DomainMessageInfo msgInfo)
         {
-            if (string.IsNullOrWhiteSpace(typeName)) return null;
+            var body = Encoding.UTF8.GetBytes(msgInfo.Body);
 
-            return AppDomain.CurrentDomain
-                .GetAssemblies()
-                .SelectMany(a => a.GetTypes())
-                .FirstOrDefault(t => t.FullName == typeName);
-        }
-
-        private static ServiceBusMessage BuildServiceBusMessage(object message, Type type)
-        {
-            var body = JsonSerializer.SerializeToUtf8Bytes(message, type);
             var sbMessage = new ServiceBusMessage(body)
             {
-                ApplicationProperties = { [".NET_Type"] = type.FullName! }
+                MessageId = msgInfo.Id.ToString(),
+                CorrelationId = msgInfo.CorrelationId.ToString(),
+                ContentType = "application/json",
+                Subject = msgInfo.TypeName,
+                
+                ApplicationProperties = { ["MessageType"] = msgInfo.TypeName }
             };
-            return sbMessage;
+            return Result<ServiceBusMessage>.Success(sbMessage);
         }
     }
 }
