@@ -30,7 +30,8 @@ namespace Spike.SqlServer.Services
                 Created = DateTime.UtcNow,
                 CommitSequence = 0,
                 Body = json,
-                TypeName = domainEvent.GetType().FullName
+                TypeName = domainEvent.GetType().FullName 
+                    ?? throw new ArgumentException("Domain event type name cannot be null.", nameof(domainEvent)),
             });
         }
     }

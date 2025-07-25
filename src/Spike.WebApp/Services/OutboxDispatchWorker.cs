@@ -27,7 +27,7 @@ namespace Spike.WebApp.Services
 
         public async Task DispatchPendingMessages(CancellationToken cancellationToken)
         {
-            var messages = await messageOutboxReader.GetNextBatch(batchSize: 10, retryAfterMins: 1, maxRetries: 5);
+            var messages = await messageOutboxReader.GetNextBatch();
 
             foreach (var msgInfo in messages)
             {

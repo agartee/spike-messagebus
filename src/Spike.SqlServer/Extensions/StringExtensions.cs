@@ -4,11 +4,14 @@ namespace Spike.SqlServer.Extensions
 {
     public static class StringExtensions
     {
-        private static readonly Regex trimmer = new Regex(@"\s\s+");
-
-        public static string TrimExtraWhitespace(this string str)
+        public static string ToCompactSql(this string sql)
         {
-            return trimmer.Replace(str, " ");
+            if (string.IsNullOrWhiteSpace(sql))
+                return string.Empty;
+
+            var compact = Regex.Replace(sql, @"\s+", " ");
+
+            return compact.Trim();
         }
     }
 }

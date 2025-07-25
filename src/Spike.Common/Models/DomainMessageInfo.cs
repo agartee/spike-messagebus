@@ -10,6 +10,6 @@
         public required int CommitSequence { get; init; }
         public required MessageStatus Status { get; init; }
         public required int SendAttemptCount { get; init; }
-        public DateTime? LastSendAttempt { get; init; }
+        public DateTime? LastDequeuedAt { get; init; }
     }
 }

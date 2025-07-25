@@ -3,32 +3,34 @@ using Microsoft.EntityFrameworkCore;
 using Spike.Common.Models;
 using Spike.Common.Services;
 using Spike.SqlServer;
+using Spike.SqlServer.Extensions;
 using Spike.SqlServer.Models;
 
 namespace Spike.WebApp.Services
 {
+
     public class SqlServerMessageOutboxReader : IMessageOutboxReader
     {
         private readonly SpikeDbContext dbContext;
+        private readonly SqlServerMessageOutboxOptions options;
 
-        public SqlServerMessageOutboxReader(SpikeDbContext dbContext)
+        public SqlServerMessageOutboxReader(SpikeDbContext dbContext, SqlServerMessageOutboxOptions options)
         {
             this.dbContext = dbContext;
+            this.options = options;
         }
 
-        public async Task<IEnumerable<DomainMessageInfo>> GetNextBatch(int batchSize, int retryAfterSeconds, int maxRetries)
+        public async Task<IEnumerable<DomainMessageInfo>> GetNextBatch()
         {
             var maxCountParam = new SqlParameter(
-                "@maxCount", batchSize);
+                "@maxCount", options.BatchSize);
             var minRetryDateTimeParam = new SqlParameter(
-                "@retryAfterSeconds", retryAfterSeconds);
-            var maxRetriesParam = new SqlParameter(
-                "@maxRetries", maxRetries);
-
-            var sql = CreateDequeueQuery(maxCountParam);
+                "@retryAfterSeconds", options.RetryAfterSeconds);
+            
+            var sql = CreateDequeueQuery().ToCompactSql();
 
             var data = await dbContext.MessageOutbox
-                .FromSqlRaw(sql, maxCountParam, minRetryDateTimeParam, maxRetriesParam)
+                .FromSqlRaw(sql, maxCountParam, minRetryDateTimeParam)
                 .AsNoTracking()
                 .ToListAsync();
 
@@ -36,12 +38,14 @@ namespace Spike.WebApp.Services
                 .Select(m => new DomainMessageInfo
                 {
                     Id = m.Id,
+                    CorrelationId = m.CorrelationId,
                     Body = m.Body,
                     TypeName = m.TypeName,
                     Created = m.Created,
                     CommitSequence = m.CommitSequence,
+                    Status = m.Status,
                     SendAttemptCount = m.SendAttemptCount,
-                    LastSendAttempt = m.LastSendAttempt
+                    LastDequeuedAt = m.LastDequeuedAt
                 })
                 .ToList();
         }
@@ -55,9 +59,9 @@ namespace Spike.WebApp.Services
             if (data is null)
                 return;
 
-            data.IsSending = false;
-            data.SendAttemptCount = data.SendAttemptCount++;
-            data.LastSendAttempt = DateTime.UtcNow;
+            data.Status = data.SendAttemptCount <= options.MaxRetries
+                ? MessageStatus.Pending
+                : MessageStatus.Failed;
 
             await dbContext.SaveChangesAsync();
         }
@@ -74,11 +78,11 @@ namespace Spike.WebApp.Services
             await dbContext.SaveChangesAsync();
         }
 
-        private static string CreateDequeueQuery(SqlParameter maxCountParam)
+        private static string CreateDequeueQuery()
         {
             const string tableName = $"[{SpikeDbContext.SchemaName}].[{MessageData.TableName}]";
 
-            return string.Format(
+            return 
                 @$"SET NOCOUNT ON;
 	            
                 DECLARE @results TABLE 
@@ -88,9 +92,9 @@ namespace Spike.WebApp.Services
 		            , [{nameof(MessageData.Body)}] VARCHAR(MAX)
 		            , [{nameof(MessageData.Created)}] DATETIME
 		            , [{nameof(MessageData.CommitSequence)}] INT
-                    , [{nameof(MessageData.IsSending)}] BIT
+                    , [{nameof(MessageData.Status)}] INT
                     , [{nameof(MessageData.SendAttemptCount)}] INT
-                    , [{nameof(MessageData.LastSendAttempt)}] DATETIME
+                    , [{nameof(MessageData.LastDequeuedAt)}] DATETIME
 	            )
 
 	            INSERT INTO @results (
@@ -99,9 +103,9 @@ namespace Spike.WebApp.Services
                     , [{nameof(MessageData.Body)}]
                     , [{nameof(MessageData.Created)}]
                     , [{nameof(MessageData.CommitSequence)}]
-                    , [{nameof(MessageData.IsSending)}]
+                    , [{nameof(MessageData.Status)}]
                     , [{nameof(MessageData.SendAttemptCount)}]
-                    , [{nameof(MessageData.LastSendAttempt)}]
+                    , [{nameof(MessageData.LastDequeuedAt)}]
                 )
 	            SELECT TOP (@maxCount) 
                       [{nameof(MessageData.Id)}]
@@ -109,18 +113,17 @@ namespace Spike.WebApp.Services
                     , [{nameof(MessageData.Body)}]
                     , [{nameof(MessageData.Created)}]
                     , [{nameof(MessageData.CommitSequence)}]
-                    , [{nameof(MessageData.IsSending)}]
+                    , [{nameof(MessageData.Status)}]
                     , [{nameof(MessageData.SendAttemptCount)}]
-                    , [{nameof(MessageData.LastSendAttempt)}]
+                    , [{nameof(MessageData.LastDequeuedAt)}]
 	            FROM 
                     {tableName} WITH (ROWLOCK, UPDLOCK, READPAST)
 	            WHERE 
-                    [{nameof(MessageData.IsSending)}] = 0
+                    [{nameof(MessageData.Status)}] = {(int)MessageStatus.Pending}
                     AND (
-                        [{nameof(MessageData.LastSendAttempt)}] IS NULL 
-                        OR GETUTCDATE() >= DATEADD(second, @retryAfterSeconds, [{nameof(MessageData.LastSendAttempt)}])
+                        [{nameof(MessageData.LastDequeuedAt)}] IS NULL 
+                        OR GETUTCDATE() >= DATEADD(second, @retryAfterSeconds, [{nameof(MessageData.LastDequeuedAt)}])
                     )
-                    AND [{nameof(MessageData.SendAttemptCount)}] < @maxRetries
                 ORDER BY 
                       [{nameof(MessageData.Created)}]
                     , [{nameof(MessageData.CommitSequence)}]
@@ -128,12 +131,13 @@ namespace Spike.WebApp.Services
 	            UPDATE 
                     {tableName}
 	            SET 
-                    [{nameof(MessageData.IsSending)}] = 1
+                    [{nameof(MessageData.Status)}] = {(int)MessageStatus.Sending},
+                    [{nameof(MessageData.SendAttemptCount)}] = [{nameof(MessageData.SendAttemptCount)}] + 1,
+                    [{nameof(MessageData.LastDequeuedAt)}] = GETUTCDATE()
 	            WHERE 
                     [{nameof(MessageData.Id)}] IN (SELECT [{nameof(MessageData.Id)}] FROM @results)
 	
-	            SELECT * from @results",
-                maxCountParam.Value);
+	            SELECT * from @results";
         }
     }
 }

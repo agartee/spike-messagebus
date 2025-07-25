@@ -12,12 +12,12 @@ namespace Spike.SqlServer.Models
         public required Guid Id { get; set; }
         public required Guid CorrelationId { get; set; }
         [MaxLength(200)]
-        public string? TypeName { get; set; }
+        public required string TypeName { get; set; }
         public required string Body { get; set; }
         public required DateTime Created { get; set; }
         public required int CommitSequence { get; set; }
         public MessageStatus Status { get; set; } = MessageStatus.Pending;
         public int SendAttemptCount { get; set; } = 0;
-        public DateTime? LastSendAttempt { get; set; }
+        public DateTime? LastDequeuedAt { get; set; }
     }
 }
