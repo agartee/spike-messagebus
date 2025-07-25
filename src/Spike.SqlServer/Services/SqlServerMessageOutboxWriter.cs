@@ -19,7 +19,7 @@ namespace Spike.SqlServer.Services
 
         public void AddMessage(object domainEvent, IStronglyTypedId aggretateRootId)
         {
-            if(domainEvent == null)
+            if (domainEvent == null)
                 throw new ArgumentNullException(nameof(domainEvent));
 
             var json = JsonSerializer.Serialize(domainEvent, options.JsonSerializerOptions);
