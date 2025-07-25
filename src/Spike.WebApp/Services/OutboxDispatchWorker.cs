@@ -77,7 +77,7 @@ namespace Spike.WebApp.Services
                 CorrelationId = msgInfo.CorrelationId.ToString(),
                 ContentType = "application/json",
                 Subject = ExtractSimpleTypeName(msgInfo.TypeName),
-                ApplicationProperties = { ["MessageType"] = msgInfo.TypeName }
+                ApplicationProperties = { ["ClrType"] = msgInfo.TypeName }
             };
             return Result<ServiceBusMessage>.Success(sbMessage);
         }
