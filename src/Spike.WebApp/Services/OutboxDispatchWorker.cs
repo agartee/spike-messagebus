@@ -91,7 +91,7 @@ namespace Spike.WebApp.Services
 
             var lastDotIndex = typeNameOnly.LastIndexOf('.');
             return lastDotIndex >= 0
-                ? typeNameOnly.Substring(lastDotIndex + 1)
+                ? typeNameOnly[(lastDotIndex + 1)..]
                 : typeNameOnly;
         }
     }
