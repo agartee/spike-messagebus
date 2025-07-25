@@ -1,4 +1,4 @@
-﻿namespace Spike.Domain.Services
+﻿namespace Spike.Common.Services
 {
     public interface IUnitOfWork
     {

@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Spike.Domain.Services;
+using Spike.Common.Services;
 using Spike.SqlServer.Models;
 
 namespace Spike.SqlServer

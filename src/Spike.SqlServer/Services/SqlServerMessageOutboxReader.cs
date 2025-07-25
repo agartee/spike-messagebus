@@ -1,7 +1,7 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Spike.Domain.Services;
-using Spike.Messaging.Models;
+using Spike.Common.Models;
+using Spike.Common.Services;
 using Spike.SqlServer;
 using Spike.SqlServer.Models;
 

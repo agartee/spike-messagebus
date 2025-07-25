@@ -1,4 +1,5 @@
-﻿using Spike.Domain.Events;
+﻿using Spike.Common.Services;
+using Spike.Domain.Events;
 using Spike.Domain.Models;
 using Spike.Domain.Services;
 
@@ -26,7 +27,7 @@ namespace Spike.Domain.Commands
         {
             var person = new Person
             {
-                Id = Guid.NewGuid(),
+                Id = PersonId.New(),
                 Name = command.Name
             };
 
@@ -38,7 +39,7 @@ namespace Spike.Domain.Commands
                 Name = person.Name
             };
 
-            messageOutboxWriter.AddMessage(domainEvent);
+            messageOutboxWriter.AddMessage(domainEvent, person.Id);
 
             await unitOfWork.SaveChangesAsync(cancellationToken);
         }

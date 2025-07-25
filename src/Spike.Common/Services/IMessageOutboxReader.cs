@@ -1,6 +1,6 @@
-﻿using Spike.Messaging.Models;
+﻿using Spike.Common.Models;
 
-namespace Spike.Domain.Services
+namespace Spike.Common.Services
 {
     public interface IMessageOutboxReader
     {

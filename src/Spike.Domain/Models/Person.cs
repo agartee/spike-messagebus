@@ -1,8 +1,12 @@
-﻿namespace Spike.Domain.Models
+﻿using Spike.Common.Models;
+
+namespace Spike.Domain.Models
 {
-    public record Person
+    public record Person : IAggregateRoot<PersonId>
     {
-        public Guid Id { get; init; }
+        public PersonId Id { get; init; }
         public required string Name { get; set; }
+
+        public object GetGenericId() => Id;
     }
 }

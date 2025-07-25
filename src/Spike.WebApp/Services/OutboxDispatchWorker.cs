@@ -1,5 +1,5 @@
 ﻿using Azure.Messaging.ServiceBus;
-using Spike.Domain.Services;
+using Spike.Common.Services;
 using System.Text.Json;
 
 namespace Spike.WebApp.Services
