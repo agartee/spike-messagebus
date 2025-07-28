@@ -1,18 +1,18 @@
 ﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Spike.Messaging.SqlServer.Services
 {
-    public record SqlServerMessageOutboxOptions
+    public class SqlServerMessageOutboxOptions
     {
-        private readonly JsonSerializerOptions serializerOptions = new JsonSerializerOptions
+        public string SchemaName { get; set; } = "dbo";
+        public int BatchSize { get; set; } = 10;
+        public int RetryAfterSeconds { get; set; } = 60;
+        public int MaxRetries { get; set; } = 3;
+        public JsonSerializerOptions JsonSerializerOptions { get; set; } = new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         };
-
-        public required string SchemaName { get; init; }
-        public int BatchSize { get; init; } = 10;
-        public int RetryAfterSeconds { get; init; } = 60;
-        public int MaxRetries { get; init; } = 3;
-        public JsonSerializerOptions JsonSerializerOptions => serializerOptions;
     }
 }

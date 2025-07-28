@@ -15,6 +15,7 @@ namespace Spike.WebApp.DependencyInjection
 
             services.AddTransient<CreatePersonHandler>();
             services.AddTransient<IPersonRepository, SqlServerPersonRepository>();
+            services.AddTransient<IPlaceRepository, SqlServerPlaceRepository>();
 
             return services;
         }

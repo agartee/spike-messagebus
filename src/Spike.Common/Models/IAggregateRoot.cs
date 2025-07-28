@@ -2,7 +2,6 @@
 {
     public interface IAggregateRoot
     {
-        object GetGenericId();
     }
 
     public interface IAggregateRoot<TId> : IAggregateRoot where TId : struct, IStronglyTypedId

@@ -4,9 +4,13 @@ namespace Spike.Domain.Models
 {
     public record Person : IAggregateRoot<PersonId>
     {
-        public PersonId Id { get; init; }
+        public required PersonId Id { get; init; }
         public required string Name { get; set; }
 
-        public object GetGenericId() => Id;
+        public static Person New(string name) => new Person
+        {
+            Id = PersonId.New(),
+            Name = name
+        };
     }
 }

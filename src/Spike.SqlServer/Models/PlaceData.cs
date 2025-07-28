@@ -2,10 +2,9 @@
 
 namespace Spike.SqlServer.Models
 {
-
-    public record PersonData
+    public record PlaceData
     {
-        public PersonId Id { get; set; }
+        public PlaceId Id { get; set; }
         public required string Name { get; set; }
     }
 }

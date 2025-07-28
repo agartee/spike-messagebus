@@ -2,9 +2,9 @@
 
 namespace Spike.Domain.Events
 {
-    public class PersonCreated
+    public class PlaceCreated
     {
-        public required PersonId Id { get; init; }
+        public required PlaceId Id { get; init; }
         public required string Name { get; init; }
     }
 }
