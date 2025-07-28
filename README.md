@@ -13,3 +13,9 @@ User Secrets for demo:
   }
 }
 ```
+
+Unresolved issues:
+
+- [ ] Add additional logging
+- [ ] Create dead-letter monitoring strategy
+- [ ] Clear outbox messages after N days
