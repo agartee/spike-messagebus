@@ -30,11 +30,11 @@ namespace Spike.SqlServer
                 guid => new PlaceId(guid),
                 id => id.Value);
 
-            modelBuilder.Entity<Person>()
+            modelBuilder.Entity<PersonData>()
                 .Property(p => p.Id)
                 .HasConversion(personIdConverter);
 
-            modelBuilder.Entity<Place>()
+            modelBuilder.Entity<PlaceData>()
                 .Property(p => p.Id)
                 .HasConversion(placeIdConverter);
         }
