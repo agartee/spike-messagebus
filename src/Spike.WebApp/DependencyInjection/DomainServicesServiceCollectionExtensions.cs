@@ -14,6 +14,8 @@ namespace Spike.WebApp.DependencyInjection
                 options.UseSqlServer(configuration.GetConnectionString("database")));
 
             services.AddTransient<CreatePersonHandler>();
+            services.AddTransient<CreatePlaceHandler>();
+
             services.AddTransient<IPersonRepository, SqlServerPersonRepository>();
             services.AddTransient<IPlaceRepository, SqlServerPlaceRepository>();
 
