@@ -1,11 +1,13 @@
 ﻿using Azure.Messaging.ServiceBus;
-using Spike.WebApp.Services;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Spike.Messaging.AspNet.Services;
 
-namespace Spike.WebApp.Configuration
+namespace Spike.Messaging.AspNet.DependencyInjection
 {
-    public static class WebServicesConfiguration
+    public static class MessagingServiceCollectionExtensions
     {
-        public static IServiceCollection AddWebServices(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddAspNetMessageDispatching(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddHostedService<OutboxDispatcherService>();
             services.AddScoped<IOutboxDispatchWorker, OutboxDispatchWorker>();
@@ -24,7 +26,6 @@ namespace Spike.WebApp.Configuration
                     ?? throw new InvalidOperationException("Missing Azure Service Bus queue name.");
                 return client.CreateSender(queueName);
             });
-
 
             return services;
         }

@@ -1,10 +1,10 @@
 ﻿using Azure.Messaging.ServiceBus;
-using Spike.Common;
+using Microsoft.Extensions.Logging;
 using Spike.Messaging.Models;
 using Spike.Messaging.Services;
 using System.Text;
 
-namespace Spike.WebApp.Services
+namespace Spike.Messaging.AspNet.Services
 {
     public class OutboxDispatchWorker : IOutboxDispatchWorker
     {

@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Spike.Messaging.AspNet\Spike.Messaging.AspNet.csproj" />
     <ProjectReference Include="..\Spike.SqlServer\Spike.SqlServer.csproj" />
   </ItemGroup>
 

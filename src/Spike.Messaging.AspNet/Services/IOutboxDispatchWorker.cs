@@ -1,4 +1,4 @@
-﻿namespace Spike.WebApp.Services
+﻿namespace Spike.Messaging.AspNet.Services
 {
     public interface IOutboxDispatchWorker
     {

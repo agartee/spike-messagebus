@@ -2,15 +2,13 @@
 using Spike.Common.Services;
 using Spike.Domain.Commands;
 using Spike.Domain.Services;
-using Spike.Messaging.Services;
 using Spike.Messaging.SqlServer.Services;
 using Spike.SqlServer;
 using Spike.SqlServer.Services;
-using Spike.WebApp.Services;
 
-namespace Spike.WebApp.Configuration
+namespace Spike.WebApp.DependencyInjection
 {
-    public static class DomainServicesConfiguration
+    public static class DomainServicesServiceCollectionExtensions
     {
         public static IServiceCollection AddDomainServices(this IServiceCollection services, IConfiguration configuration)
         {
@@ -18,17 +16,9 @@ namespace Spike.WebApp.Configuration
                 options.UseSqlServer(configuration.GetConnectionString("database")));
 
             services.AddSingleton(new SqlServerMessageOutboxOptions { SchemaName = SpikeDbContext .SchemaName});
-
             services.AddScoped<IUnitOfWork>(s => s.GetRequiredService<SpikeDbContext>());
-
             services.AddTransient<CreatePersonHandler>();
-
             services.AddTransient<IPersonRepository, SqlServerPersonRepository>();
-            services.AddTransient<IMessageOutboxWriter, SqlServerMessageOutboxWriter<SpikeDbContext>>();
-            services.AddTransient<IMessageOutboxReader, SqlServerMessageOutboxReader<SpikeDbContext>>();
-
-            services.AddTransient<IOutboxDispatchWorker, OutboxDispatchWorker>();
-            services.AddHostedService<OutboxDispatcherService>();
 
             return services;
         }

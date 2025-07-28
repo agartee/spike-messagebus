@@ -1,4 +1,8 @@
-﻿namespace Spike.WebApp.Services
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+
+namespace Spike.Messaging.AspNet.Services
 {
     public class OutboxDispatcherService : BackgroundService
     {
