@@ -1,21 +1,21 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Spike.Common.Models;
-using Spike.Common.Services;
-using Spike.SqlServer;
-using Spike.SqlServer.Extensions;
-using Spike.SqlServer.Models;
+using Spike.Messaging.Models;
+using Spike.Messaging.Services;
+using Spike.Messaging.SqlServer.Extensions;
+using Spike.Messaging.SqlServer.Models;
 using System.Collections.Immutable;
 
-namespace Spike.WebApp.Services
+namespace Spike.Messaging.SqlServer.Services
 {
 
-    public class SqlServerMessageOutboxReader : IMessageOutboxReader
+    public class SqlServerMessageOutboxReader<TDbContext> : IMessageOutboxReader
+        where TDbContext : DbContext, IMessageOutbox
     {
-        private readonly SpikeDbContext dbContext;
+        private readonly TDbContext dbContext;
         private readonly SqlServerMessageOutboxOptions options;
 
-        public SqlServerMessageOutboxReader(SpikeDbContext dbContext, SqlServerMessageOutboxOptions options)
+        public SqlServerMessageOutboxReader(TDbContext dbContext, SqlServerMessageOutboxOptions options)
         {
             this.dbContext = dbContext;
             this.options = options;
@@ -79,9 +79,9 @@ namespace Spike.WebApp.Services
             await dbContext.SaveChangesAsync();
         }
 
-        private static string CreateDequeueQuery()
+        private string CreateDequeueQuery()
         {
-            const string tableName = $"[{SpikeDbContext.SchemaName}].[{MessageData.TableName}]";
+            var tableName = $"[{options.SchemaName}].[{MessageData.TableName}]";
 
             return 
                 @$"SET NOCOUNT ON;

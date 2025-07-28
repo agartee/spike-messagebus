@@ -1,7 +1,7 @@
 ﻿using Azure.Messaging.ServiceBus;
 using Spike.Common;
-using Spike.Common.Models;
-using Spike.Common.Services;
+using Spike.Messaging.Models;
+using Spike.Messaging.Services;
 using System.Text;
 
 namespace Spike.WebApp.Services
@@ -32,7 +32,7 @@ namespace Spike.WebApp.Services
                 {
                     var serviceBusMessage = BuildServiceBusMessage(msgInfo);
 
-                    await serviceBusSender.SendMessageAsync(serviceBusMessage.Value, cancellationToken);
+                    await serviceBusSender.SendMessageAsync(serviceBusMessage, cancellationToken);
                     await messageOutboxReader.ReportSuccess(msgInfo.Id);
                 }
                 catch (Exception ex)
@@ -43,7 +43,7 @@ namespace Spike.WebApp.Services
             }
         }
 
-        private static Result<ServiceBusMessage> BuildServiceBusMessage(DomainMessageInfo msgInfo)
+        private static ServiceBusMessage BuildServiceBusMessage(DomainMessageInfo msgInfo)
         {
             /*
              * Subject Naming Guidelines for Service Bus Messages
@@ -79,7 +79,7 @@ namespace Spike.WebApp.Services
                 Subject = ExtractSimpleTypeName(msgInfo.TypeName),
                 ApplicationProperties = { ["TypeName"] = msgInfo.TypeName }
             };
-            return Result<ServiceBusMessage>.Success(sbMessage);
+            return sbMessage;
         }
 
         public static string ExtractSimpleTypeName(string fullTypeNameOrAssemblyQualifiedName)

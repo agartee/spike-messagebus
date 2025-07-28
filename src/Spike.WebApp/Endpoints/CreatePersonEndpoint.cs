@@ -2,7 +2,7 @@
 
 namespace Spike.WebApp.Endpoints
 {
-    public static class CreatePersonMapping
+    public static class CreatePersonEndpoint
     {
         public static IEndpointRouteBuilder MapCreatePerson(this IEndpointRouteBuilder routeBuilder)
         {

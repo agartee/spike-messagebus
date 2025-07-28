@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Spike.Common\Spike.Common.csproj" />
-    <ProjectReference Include="..\Spike.Messaging\Spike.Messaging.csproj" />
   </ItemGroup>
 
 </Project>

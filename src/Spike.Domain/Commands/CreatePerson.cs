@@ -2,6 +2,7 @@
 using Spike.Domain.Events;
 using Spike.Domain.Models;
 using Spike.Domain.Services;
+using Spike.Messaging.Services;
 
 namespace Spike.Domain.Commands
 {

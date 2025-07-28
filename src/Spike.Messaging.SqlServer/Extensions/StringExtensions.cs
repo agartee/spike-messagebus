@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace Spike.SqlServer.Extensions
+namespace Spike.Messaging.SqlServer.Extensions
 {
     public static class StringExtensions
     {

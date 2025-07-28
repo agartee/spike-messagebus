@@ -11,8 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Spike.Domain\Spike.Domain.csproj" />
-    <ProjectReference Include="..\Spike.Messaging.SqlServer\Spike.Messaging.SqlServer.csproj" />
+    <ProjectReference Include="..\Spike.Messaging\Spike.Messaging.csproj" />
   </ItemGroup>
 
 </Project>

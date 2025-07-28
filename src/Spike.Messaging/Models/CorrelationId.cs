@@ -1,4 +1,6 @@
-﻿namespace Spike.Common.Models
+﻿using Spike.Common.Models;
+
+namespace Spike.Messaging.Models
 {
     public readonly record struct CorrelationId(Guid Value) : IStronglyTypedId
     {

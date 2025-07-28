@@ -1,4 +1,4 @@
-﻿namespace Spike.Common.Models
+﻿namespace Spike.Messaging.Models
 {
     public enum MessageStatus
     {

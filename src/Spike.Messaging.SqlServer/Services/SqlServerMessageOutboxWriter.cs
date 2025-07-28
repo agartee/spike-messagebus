@@ -1,17 +1,19 @@
-﻿using Spike.Common.Models;
-using Spike.Common.Services;
-using Spike.SqlServer.Models;
-using Spike.WebApp.Services;
+﻿using Microsoft.EntityFrameworkCore;
+using Spike.Common.Models;
+using Spike.Messaging.Services;
+using Spike.Messaging.SqlServer.Models;
+using Spike.Messaging.SqlServer.Services;
 using System.Text.Json;
 
 namespace Spike.SqlServer.Services
 {
-    public class SqlServerMessageOutboxWriter : IMessageOutboxWriter
+    public class SqlServerMessageOutboxWriter<TDbContext> : IMessageOutboxWriter
+        where TDbContext : DbContext, IMessageOutbox
     {
-        private readonly SpikeDbContext dbContext;
+        private readonly TDbContext dbContext;
         private readonly SqlServerMessageOutboxOptions options;
 
-        public SqlServerMessageOutboxWriter(SpikeDbContext dbContext, SqlServerMessageOutboxOptions options)
+        public SqlServerMessageOutboxWriter(TDbContext dbContext, SqlServerMessageOutboxOptions options)
         {
             this.dbContext = dbContext;
             this.options = options;

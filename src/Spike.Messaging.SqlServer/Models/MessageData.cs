@@ -1,8 +1,8 @@
-﻿using Spike.Common.Models;
+﻿using Spike.Messaging.Models;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Spike.SqlServer.Models
+namespace Spike.Messaging.SqlServer.Models
 {
     [Table(TableName)]
     public class MessageData

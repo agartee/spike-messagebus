@@ -1,6 +1,6 @@
 ﻿using Spike.Common.Models;
 
-namespace Spike.Common.Services
+namespace Spike.Messaging.Services
 {
     public interface IMessageOutboxWriter
     {
